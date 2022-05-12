@@ -39,8 +39,7 @@ def generate_launch_description():
     # Start Rviz2 with basic view
     rviz2_config_path = os.path.join(get_package_share_directory('robot_description'), 'config/view.rviz')
     run_rviz2 = ExecuteProcess(
-        # cmd=['rviz2', '-d', rviz2_config_path],
-        cmd=['rviz2'],
+        cmd=['rviz2', '-d', rviz2_config_path],
         output='screen'
     )
 
