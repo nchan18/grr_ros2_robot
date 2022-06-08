@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="wheel_angled_right" params="name radius width flip pos_x pos_y pos_z mass">
+
+    <link name="${name}_wheel_link">
+      <xacro:inertial_cylinder mass="${mass}" length="${width}" radius="${radius}">
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+      </xacro:inertial_cylinder>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${flip} 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/wheel_2.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${width}"/>
+        </geometry>
+      </collision>
+    </link>
+
+
+    <gazebo reference="${name}_wheel_link">
+      <material>Gazebo/Green</material>
+      <kp>1000000000000000000000000000.0</kp>
+      <kd>1000000000000000000000000000.0</kd>
+      <mu1 value="1000.0"/>
+      <mu2 value="100.0"/>
+    </gazebo>
+    
+
+    <joint name="${name}_wheel_joint" type="continuous">
+      <origin xyz="${pos_x} ${pos_y} ${pos_z}" rpy="0 0 0"/>
+      <parent link="chassis_link"/>
+      <child link="${name}_wheel_link"/>
+      <axis xyz="1.0 0.0 0.0"/>
+    </joint>
+  </xacro:macro>
+</robot>
