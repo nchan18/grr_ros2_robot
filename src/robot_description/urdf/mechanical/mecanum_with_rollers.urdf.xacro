@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="mecanum_with_rollers" params="name type radius width flip pos_x pos_y pos_z mass">
+    <link name="${name}_mecanum_link">
+      <xacro:inertial_cylinder mass="${mass}" length="${width}" radius="${radius}">
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+      </xacro:inertial_cylinder>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${(type - 1) * (pi/2)} 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/mecanum_${type}.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+    </link>
+
+    <joint name="${name}_mecanum_joint" type="continuous">
+      <origin xyz="${pos_x} ${pos_y} ${pos_z}" rpy="0 ${flip} 0"/>
+      <parent link="chassis_link"/>
+      <child link="${name}_mecanum_link"/>
+      <axis xyz="1.0 0.0 0.0"/>
+    </joint>
+
+    <xacro:roller name="${name}" number="0" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="1" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="2" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="3" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="4" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="5" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="6" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="7" center="-${width/2}"/>
+    <xacro:roller name="${name}" number="8" center="-${width/2}"/>
+  </xacro:macro>
+
+
+  <xacro:macro name="roller" params="name number center">
+    <xacro:property name="diff" value="0.002" />
+    <xacro:property name="roller_radius" value="${radius - diff}" />
+    <xacro:property name="roller_total" value="9" />
+    <xacro:property name="roller_radians" value="${2 * pi / roller_total * number}" />
+    <xacro:property name="roller_y" value="${sin(roller_radians) * diff}" />
+    <xacro:property name="roller_z" value="${cos(roller_radians) * diff}" />
+    <xacro:property name="roller_axis" value="${((type - 1) * -1) + 0.5}" />
+
+    <link name="${name}_roller_${number}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_radius}"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_radius}"/>
+        </geometry>
+      </collision>
+      <xacro:inertial_sphere mass="0.03" radius="${roller_radius}">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:inertial_sphere>
+    </link>
+    
+
+    <joint name="${name}_roller_${number}_joint" type="continuous">
+      <origin xyz="${center} ${roller_y} ${roller_z}" rpy="0 ${roller_radians} 0"/>
+      <parent link="${name}_mecanum_link"/>
+      <child link="${name}_roller_${number}"/>
+      <axis xyz="0.5 ${roller_axis} 0.0"/>
+    </joint>
+  </xacro:macro>
+</robot>

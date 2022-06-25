@@ -3,8 +3,7 @@
 
   <xacro:include filename="$(find robot_description)/urdf/macros.xacro" />
   <xacro:include filename="$(find robot_description)/urdf/mechanical/chassis.urdf.xacro"/>
-  <xacro:include filename="$(find robot_description)/urdf/mechanical/wheel_angled_left.urdf.xacro"/>
-  <xacro:include filename="$(find robot_description)/urdf/mechanical/wheel_angled_right.urdf.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/mechanical/mecanum_with_rollers.urdf.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/robots/examplo_properties.urdf.xacro"/>
 
   <xacro:chassis
@@ -14,19 +13,21 @@
     mass="${chassis_weight}"
   />
 
-  <xacro:wheel_angled_left
+  <xacro:mecanum_with_rollers
     name="front_right"
+    type="1"
     radius="${wheel_radius}" 
     width="${wheel_thickness}"
     flip="${pi}"
     pos_x="${wheel_joint_pos_x}" 
     pos_y="${wheel_joint_pos_y}" 
-    pos_z="-${wheel_joint_pos_z}" 
+    pos_z="-${wheel_joint_pos_z}"
     mass="${wheel_weight}"
   />
 
-  <xacro:wheel_angled_left
+  <xacro:mecanum_with_rollers
     name="rear_left"
+    type="1"
     radius="${wheel_radius}" 
     width="${wheel_thickness}"
     flip="0"
@@ -36,22 +37,24 @@
     mass="${wheel_weight}"
   />
 
-  <xacro:wheel_angled_right
+  <xacro:mecanum_with_rollers
     name="front_left"
+    type="2"
     radius="${wheel_radius}" 
     width="${wheel_thickness}"
-    flip="${pi/2}"
+    flip="0"
     pos_x="-${wheel_joint_pos_x}" 
     pos_y="${wheel_joint_pos_y}" 
     pos_z="-${wheel_joint_pos_z}" 
     mass="${wheel_weight}"
   />
 
-  <xacro:wheel_angled_right
+  <xacro:mecanum_with_rollers
     name="rear_right"
+    type="2"
     radius="${wheel_radius}" 
     width="${wheel_thickness}"
-    flip="-${pi/2}"
+    flip="${pi}"
     pos_x="${wheel_joint_pos_x}" 
     pos_y="-${wheel_joint_pos_y}" 
     pos_z="-${wheel_joint_pos_z}" 
