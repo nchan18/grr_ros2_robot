@@ -6,13 +6,16 @@
     <xacro:property name="chassis_height" value="0.135" />
     <xacro:property name="chassis_weight" value="2.45" />
 
-    <xacro:property name="wheel_radius" value="0.047" />
+    <xacro:property name="wheel_radius" value="${0.0194/2 + 0.0291}" />
     <xacro:property name="wheel_thickness" value="0.042" />
     <xacro:property name="wheel_weight" value="0.136" />
+    <xacro:property name="wheel_offset" value="${wheel_thickness/2 - 0.003}" />
 
     <xacro:property name="wheel_joint_pos_x" value="0.09" />
     <xacro:property name="wheel_joint_pos_y" value="0.145" />
     <xacro:property name="wheel_joint_pos_z" value="0.121" />
+
+    
 
     <material name="silver">
         <color rgba="0.700 0.700 0.700 1.000"/>
