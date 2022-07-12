@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
-  <ros2_control name="robot" type="system">
-
+  <ros2_control name="examplo" type="system">
     <hardware>
-      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <plugin>robot_hardware/IsaacDriveHardware</plugin>
+      <param name="example_param_hw_start_duration_sec">3.0</param>
+      <param name="example_param_hw_stop_duration_sec">3.0</param>
     </hardware>
-
-    <joint name="wheel_FR_joint">
+    <joint name="front_right_mecanum_joint">
       <command_interface name="velocity">
         <param name="min">-1</param>
         <param name="max">1</param>
@@ -15,9 +15,7 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
-    
-    
-    <joint name="wheel_FL_joint">
+    <joint name="rear_left_mecanum_joint">
       <command_interface name="velocity">
         <param name="min">-1</param>
         <param name="max">1</param>
@@ -25,8 +23,7 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
-
-    <joint name="wheel_RR_joint">
+    <joint name="front_left_mecanum_joint">
       <command_interface name="velocity">
         <param name="min">-1</param>
         <param name="max">1</param>
@@ -34,8 +31,7 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
-
-    <joint name="wheel_RL_joint">
+    <joint name="rear_right_mecanum_joint">
       <command_interface name="velocity">
         <param name="min">-1</param>
         <param name="max">1</param>
@@ -43,14 +39,6 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
-      
   </ros2_control>
-
-
-  <gazebo>
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(find robot_description)/config/diff_drive_controller.yml</parameters>
-    </plugin>
-  </gazebo>
 
 </robot>

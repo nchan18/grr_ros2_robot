@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+  <xacro:macro name="roller" params="name number">
+
+    <!-- Type Offset: When type 1 output 1. When type 2 output -1 -->
+    <xacro:property name="type_offset" value="${(type * 2 - 3) * -1}" />
+    
+    <!-- Compute incremental radians to place the roller around the hub -->
+    <xacro:property name="roller_radians" value="${2 * pi / roller_total * number}" />
+    
+    <!-- Figure out the x and y position of the roller from radian value -->
+    <xacro:property name="roller_x_pos" value="${sin(roller_radians) * wheel_radius}" />
+    <xacro:property name="roller_y_pos" value="${cos(roller_radians) * wheel_radius}" />
+    
+    <!-- Figure out how much to rotate a roller. It should be angled 45 degrees -->
+    <xacro:property name="roller_x_rot" value="${sin(roller_radians) * (pi/4) * type_offset}" />
+    <xacro:property name="roller_y_rot" value="${cos(roller_radians) * (pi/4) * type_offset}" />
+
+    <link name="${name}_roller_${number}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/roller.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_middle_radius}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 ${roller_length/5}" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_second_radius}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -${roller_length/5}" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_second_radius}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 ${2 * roller_length/5}" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_third_radius}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -${2 * roller_length/5}" rpy="0 0 0"/>
+        <geometry>
+          <sphere radius="${roller_third_radius}"/>
+        </geometry>
+      </collision>
+    </link>
+    
+
+    <joint name="${name}_roller_${number}_joint" type="continuous">
+      <origin xyz="${roller_x_pos} ${roller_y_pos} 0" rpy="${roller_x_rot} ${roller_y_rot} 0"/>
+      <parent link="${name}_mecanum_link"/>
+      <child link="${name}_roller_${number}"/>
+      <axis xyz="0.0 0.0 1.0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>

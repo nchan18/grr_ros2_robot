@@ -1,11 +1,39 @@
 <?xml version="1.0" ?>
 <robot name="examplo" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find robot_description)/urdf/macros.xacro" />
-  <xacro:include filename="$(find robot_description)/urdf/mechanical/chassis.urdf.xacro"/>
-  <xacro:include filename="$(find robot_description)/urdf/mechanical/mecanum_with_rollers.urdf.xacro"/>
-  <xacro:include filename="$(find robot_description)/urdf/robots/examplo_properties.urdf.xacro"/>
 
+  <!-- Include Files -->
+  <xacro:include filename="$(find robot_description)/urdf/util/macros.xacro" />
+  <xacro:include filename="$(find robot_description)/urdf/util/materials.xacro" />
+  <xacro:include filename="$(find robot_description)/urdf/parts/chassis.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/parts/mecanum_wheel.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/parts/mecanum_roller.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/control/drive.xacro"/>
+
+  <!-- Properties -->
+  <xacro:property name="chassis_length" value="0.18" />
+  <xacro:property name="chassis_width" value="0.33" />
+  <xacro:property name="chassis_height" value="0.135" />
+  <xacro:property name="chassis_weight" value="2.45" />
+
+  <xacro:property name="wheel_radius" value="${0.0194/2 + 0.0291}" />
+  <xacro:property name="wheel_thickness" value="0.042" />
+  <xacro:property name="wheel_weight" value="0.136" />
+  <xacro:property name="wheel_offset" value="${wheel_thickness/2 - 0.003}" />
+
+  <xacro:property name="wheel_joint_pos_x" value="0.09" />
+  <xacro:property name="wheel_joint_pos_y" value="0.145" />
+  <xacro:property name="wheel_joint_pos_z" value="0.121" />
+
+  <xacro:property name="roller_total" value="9" />
+  <xacro:property name="roller_middle_radius" value="${0.0194/2}" />
+  <xacro:property name="roller_second_radius" value="${0.01904/2}" />
+  <xacro:property name="roller_third_radius" value="${0.01797/2}" />
+  <xacro:property name="roller_cylinder_radius" value="0.0074" />
+  <xacro:property name="roller_length" value="0.0396" />
+
+
+  <!-- Assembly -->
   <xacro:chassis
     length="${chassis_length}"
     width="${chassis_width}" 
