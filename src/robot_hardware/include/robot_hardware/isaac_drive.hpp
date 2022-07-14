@@ -27,6 +27,8 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "robot_hardware/visibility_control.h"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -67,9 +69,20 @@ private:
   std::vector<double> hw_commands_;
   std::vector<double> hw_positions_;
   std::vector<double> hw_velocities_;
+  std::vector<std::string> joint_names_;
 
   // Store the wheeled robot position
   double base_x_, base_y_, base_theta_;
+
+  // Publish to isaac
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_;
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription_;
+
+  std::vector<std::string> isaac_joint_names_;
+  std::vector<double> isaac_positions_;
+  std::vector<double> isaac_velocities_;
+  void topic_callback(const sensor_msgs::msg::JointState & state);
 };
 
 }  // namespace robot_hardware
