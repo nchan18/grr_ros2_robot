@@ -38,23 +38,16 @@ CallbackReturn IsaacDriveHardware::on_init(const hardware_interface::HardwareInf
   subscription_ = node_->create_subscription<sensor_msgs::msg::JointState>("isaac_joint_states", custom_qos_profile.depth,
     std::bind(&IsaacDriveHardware::topic_callback, this, _1));
 
-  base_x_ = 0.0;
-  base_y_ = 0.0;
-  base_theta_ = 0.0;
-
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
   }
 
-  // START: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_start_sec_ = stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
-  hw_stop_sec_ = stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
+  // hw_start_sec_ = stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
+  // hw_stop_sec_ = stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
   hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  // joint_names_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
@@ -144,16 +137,7 @@ std::vector<hardware_interface::CommandInterface> IsaacDriveHardware::export_com
 CallbackReturn IsaacDriveHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // START: This part here is for exemplary purposes - Please do not copy to your production code
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Activating ...please wait...");
-
-  for (auto i = 0; i < hw_start_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(
-      rclcpp::get_logger("IsaacDriveHardware"), "%.1f seconds left...", hw_start_sec_ - i);
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   // set some default values
   for (auto i = 0u; i < hw_positions_.size(); i++)
@@ -180,17 +164,7 @@ CallbackReturn IsaacDriveHardware::on_activate(
 CallbackReturn IsaacDriveHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // START: This part here is for exemplary purposes - Please do not copy to your production code
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Deactivating ...please wait...");
-
-  for (auto i = 0; i < hw_stop_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(
-      rclcpp::get_logger("IsaacDriveHardware"), "%.1f seconds left...", hw_stop_sec_ - i);
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Successfully deactivated!");
 
   return CallbackReturn::SUCCESS;
@@ -202,35 +176,6 @@ CallbackReturn IsaacDriveHardware::on_deactivate(
 
 hardware_interface::return_type IsaacDriveHardware::read()
 {
-  RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Reading...");
-
-  // double radius = 0.02;  // radius of the wheels
-  // double dist_w = 0.1;   // distance between the wheels
-  // double dt = 0.01;      // Control period
-  // for (uint i = 0; i < hw_commands_.size(); i++)
-  // {
-  //   // Simulate DiffBot wheels's movement as a first-order system
-  //   // Update the joint status: this is a revolute joint without any limit.
-  //   // Simply integrates
-  //   hw_positions_[i] = hw_positions_[1] + dt * hw_commands_[i];
-  //   hw_velocities_[i] = hw_commands_[i];
-
-  //   // START: This part here is for exemplary purposes - Please do not copy to your production code
-  //   RCLCPP_INFO(
-  //     rclcpp::get_logger("IsaacDriveHardware"),
-  //     "Got position state %.5f and velocity state %.5f for '%s'!", hw_positions_[i],
-  //     hw_velocities_[i], joint_names_[i].c_str());
-  //   // END: This part here is for exemplary purposes - Please do not copy to your production code
-  // }
-
-  // // Update the free-flyer, i.e. the base notation using the classical
-  // // wheel differentiable kinematics
-  // double base_dx = 0.5 * radius * (hw_commands_[0] + hw_commands_[1]) * cos(base_theta_);
-  // double base_dy = 0.5 * radius * (hw_commands_[0] + hw_commands_[1]) * sin(base_theta_);
-  // double base_dtheta = radius * (hw_commands_[0] - hw_commands_[1]) / dist_w;
-  // base_x_ += base_dx * dt;
-  // base_y_ += base_dy * dt;
-  // base_theta_ += base_dtheta * dt;
   rclcpp::spin_some(node_);
   for (auto i = 0u; i < hw_commands_.size(); i++) {
     for (auto y = 0u; y < hw_commands_.size(); y++) {
@@ -241,14 +186,7 @@ hardware_interface::return_type IsaacDriveHardware::read()
       }
     }
   }
-
-  for (auto i = 0u; i < hw_commands_.size(); i++)
-  {
-    RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Read: %s pos: %.5f vel: %.5f",
-      joint_names_[i].c_str(), hw_positions_[i], hw_velocities_[i]);
-  }
   
-
   return hardware_interface::return_type::OK;
 }
 
@@ -256,25 +194,13 @@ hardware_interface::return_type IsaacDriveHardware::read()
 
 hardware_interface::return_type robot_hardware::IsaacDriveHardware::write()
 {
-  // START: This part here is for exemplary purposes - Please do not copy to your production code
-
-  RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Writing...");
+  RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Velocity: %f", hw_commands_[0]);
 
   auto joint_commands = sensor_msgs::msg::JointState();
   joint_commands.name = joint_names_;
   joint_commands.velocity = hw_commands_;
   publisher_->publish(joint_commands);
   rclcpp::spin_some(node_);
-
-  for (auto i = 0u; i < hw_commands_.size(); i++)
-  {
-    // Simulate sending commands to the hardware
-    RCLCPP_INFO(
-      rclcpp::get_logger("IsaacDriveHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
-      info_.joints[i].name.c_str());
-  }
-  RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Joints successfully written!");
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
 }

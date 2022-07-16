@@ -71,9 +71,6 @@ private:
   std::vector<double> hw_velocities_;
   std::vector<std::string> joint_names_;
 
-  // Store the wheeled robot position
-  double base_x_, base_y_, base_theta_;
-
   // Publish to isaac
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_;
