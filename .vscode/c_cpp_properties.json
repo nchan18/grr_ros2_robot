@@ -2,11 +2,14 @@
   "configurations": [
     {
       "browse": {
-        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "databaseFilename": "${default}",
         "limitSymbolsToIncludedHeaders": false
       },
       "includePath": [
+        "/home/helios/examplo-ros2/install/robot_hardware/include/**",
         "/opt/ros/galactic/include/**",
+        "/home/helios/examplo-ros2/src/mecanum_controller/include/**",
+        "/home/helios/examplo-ros2/src/robot_hardware/include/**",
         "/usr/include/**"
       ],
       "name": "ROS",

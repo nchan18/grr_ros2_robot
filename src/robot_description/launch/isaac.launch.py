@@ -48,7 +48,7 @@ def generate_launch_description():
     diff_drive_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["diff_drive_train_controller", "-c", "/controller_manager"],
+        arguments=["mecanum_controller", "-c", "/controller_manager"],
     )
     diff_drive_controller_delay = RegisterEventHandler(
         event_handler=OnProcessExit(
@@ -91,7 +91,7 @@ def generate_launch_description():
         executable='teleop_node',
         name='teleop_twist_joy_node', 
         parameters=[config_filepath],
-        remappings={('/cmd_vel', '/diff_drive_train_controller/cmd_vel_unstamped')}
+        remappings={('/cmd_vel', '/mecanum_controller/cmd_vel_unstamped')}
         )
 
 

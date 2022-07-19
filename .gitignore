@@ -2,3 +2,4 @@ build
 install
 log
 browse.*
+.vscode/c_cpp_properties.json
