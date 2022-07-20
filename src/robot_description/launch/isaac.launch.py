@@ -13,6 +13,8 @@ def generate_launch_description():
     pkg_path = os.path.join(get_package_share_directory('robot_description'))
     xacro_file = os.path.join(pkg_path, 'urdf', 'robots','examplo.urdf.xacro')
     controllers_file = os.path.join(pkg_path, 'config', 'controllers.yaml')
+    joystick_file = os.path.join(pkg_path, 'config', 'xbox-holonomic.config.yaml')
+    rviz_file = os.path.join(pkg_path, 'config', 'isaac.rviz')
     robot_description_config = xacro.process_file(xacro_file)
     robot_description_xml = robot_description_config.toxml()
     
@@ -59,9 +61,8 @@ def generate_launch_description():
 
 
     # Start Rviz2 with basic view
-    rviz2_config_path = os.path.join(get_package_share_directory('robot_description'), 'config/isaac.rviz')
     run_rviz2 = ExecuteProcess(
-        cmd=['rviz2', '-d', rviz2_config_path],
+        cmd=['rviz2', '-d', rviz_file],
         output='screen'
     )
     rviz2_delay = RegisterEventHandler(
@@ -85,12 +86,11 @@ def generate_launch_description():
 
 
     # Start Teleop Node to translate joystick commands to robot commands
-    config_filepath = os.path.join(get_package_share_directory('teleop_twist_joy'), 'config/xbox.config.yaml')
     joy_teleop = Node(
         package='teleop_twist_joy', 
         executable='teleop_node',
         name='teleop_twist_joy_node', 
-        parameters=[config_filepath],
+        parameters=[joystick_file],
         remappings={('/cmd_vel', '/mecanum_controller/cmd_vel_unstamped')}
         )
 
