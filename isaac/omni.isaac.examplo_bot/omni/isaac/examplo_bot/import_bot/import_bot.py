@@ -32,7 +32,7 @@ class ImportBot(BaseSample):
         import_config.distance_scale = 1.0
         import_config.density = 0.0
         # Get the urdf file path
-        root_path = "/home/helios/examplo-ros2/src/robot_description/urdf"
+        root_path = "/home/helios/examplo-ros2/src/robot_description/"
         file_name = "examplo.urdf"
         # Finally import the robot
         result, prim_path = omni.kit.commands.execute( "URDFParseAndImportFile", 
