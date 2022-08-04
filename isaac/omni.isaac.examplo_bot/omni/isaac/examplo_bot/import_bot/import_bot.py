@@ -1,8 +1,10 @@
-from omni.isaac.examples.base_sample import BaseSample
+from omni.isaac.examplo_bot.base_sample import BaseSample
 from omni.isaac.core.utils.extensions import get_extension_path_from_name
 from omni.isaac.urdf import _urdf
+from omni.isaac.core.robots import Robot
 import omni.kit.commands
 import omni.usd
+import numpy as np
 
 class ImportBot(BaseSample):
     def __init__(self) -> None:
@@ -38,6 +40,10 @@ class ImportBot(BaseSample):
         result, prim_path = omni.kit.commands.execute( "URDFParseAndImportFile", 
             urdf_path="{}/{}".format(root_path, file_name),
             import_config=import_config)
+        self.robot_name = "examplo"
+        self.examplo_robot_prim = self._world.scene.add(Robot(
+            prim_path=prim_path, name=self.robot_name, position=np.array([0.0, 0.0, 0.3])
+        ))
         
         return
 
@@ -54,6 +60,5 @@ class ImportBot(BaseSample):
         return
     
     def world_cleanup(self):
-        self._world.scene.remove_object('/examplo')
-        print(2)
+        self._world.scene.remove_object(self.robot_name)
         return
