@@ -8,6 +8,8 @@
   <xacro:include filename="$(find robot_description)/urdf/parts/chassis.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/parts/mecanum_wheel.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/parts/mecanum_roller.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/parts/lidar.xacro"/>
+  <xacro:include filename="$(find robot_description)/urdf/parts/zed_cam.xacro"/>
   <xacro:include filename="$(find robot_description)/urdf/control/drive.xacro"/>
 
   <!-- Properties -->
@@ -31,6 +33,10 @@
   <xacro:property name="roller_third_radius" value="${0.01797/2}" />
   <xacro:property name="roller_cylinder_radius" value="0.0074" />
   <xacro:property name="roller_length" value="0.0396" />
+
+  <xacro:property name="lidar_radius" value="0.035" />
+  <xacro:property name="lidar_length" value="0.025" />
+  <xacro:property name="lidar_joint_pos_y" value="-0.045" />
 
 
   <!-- Assembly -->
@@ -89,5 +95,14 @@
     mass="${wheel_weight}"
   />
 
+  <xacro:lidar
+    radius="${lidar_radius}"
+    length="${lidar_length}"
+    pos_y="${lidar_joint_pos_y}"
+  />
+
+  <xacro:zed_camera parent="chassis_link">
+    <origin xyz="0 0.15 0" rpy="0 0 ${pi/2}" />
+  </xacro:zed_camera>
 
 </robot>
