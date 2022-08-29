@@ -18,8 +18,9 @@ def generate_launch_description():
     robot_description_config = xacro.process_file(xacro_file)
     robot_description_xml = robot_description_config.toxml()
 
-
-    with open('/home/helios/examplo-ros2/src/robot_description/examplo.urdf', 'w') as f:
+    source_code_path = os.path.abspath(os.path.join(pkg_path, "../../../../src/robot_description"))
+    urdf_save_path = os.path.join(source_code_path, "examplo.urdf")
+    with open(urdf_save_path, 'w') as f:
         f.write(robot_description_xml)
     
     # Create a robot_state_publisher node
