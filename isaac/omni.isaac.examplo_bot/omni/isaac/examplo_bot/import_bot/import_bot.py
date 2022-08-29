@@ -99,8 +99,9 @@ class ImportBot(BaseSample):
         return
 
     def create_lidar(self, robot_prim_path):
-        lidar_parent = "/examplo/lidar_link".format(robot_prim_path)
+        lidar_parent = "{}/lidar_link".format(robot_prim_path)
         lidar_path = "/lidar"
+        self.lidar_prim_path = lidar_parent + lidar_path
         result, prim = omni.kit.commands.execute(
             "RangeSensorCreateLidar",
             path=lidar_path,
@@ -118,7 +119,6 @@ class ImportBot(BaseSample):
             yaw_offset=0.0,
             enable_semantics=False
         )
-        self.lidar_prim_path = prim
         return
 
     def setup_world_action_graph(self):
@@ -157,6 +157,8 @@ class ImportBot(BaseSample):
                 og.Controller.Keys.SET_VALUES: [
                     ("PublishJointState.inputs:topicName", "isaac_joint_states"),
                     ("SubscribeJointState.inputs:topicName", "isaac_joint_commands"),
+                    ("ros2_publish_laser_scan.inputs:topicName", "laser_scan"),
+                    ("ros2_publish_laser_scan.inputs:frameId", "base_link"),
                 ],
                 og.Controller.Keys.CONNECT: [
                     ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
@@ -168,12 +170,22 @@ class ImportBot(BaseSample):
                     ("Context.outputs:context", "SubscribeJointState.inputs:context"),
                     ("Context.outputs:context", "ros2_publish_laser_scan.inputs:context"),
                     ("isaac_read_lidar_beams_node.outputs:execOut", "ros2_publish_laser_scan.inputs:execIn"),
+                    ("isaac_read_lidar_beams_node.outputs:azimuthRange", "ros2_publish_laser_scan.inputs:azimuthRange"),
+                    ("isaac_read_lidar_beams_node.outputs:depthRange", "ros2_publish_laser_scan.inputs:depthRange"),
+                    ("isaac_read_lidar_beams_node.outputs:horizontalFov", "ros2_publish_laser_scan.inputs:horizontalFov"),
+                    ("isaac_read_lidar_beams_node.outputs:horizontalResolution", "ros2_publish_laser_scan.inputs:horizontalResolution"),
+                    ("isaac_read_lidar_beams_node.outputs:intensitiesData", "ros2_publish_laser_scan.inputs:intensitiesData"),
+                    ("isaac_read_lidar_beams_node.outputs:linearDepthData", "ros2_publish_laser_scan.inputs:linearDepthData"),
+                    ("isaac_read_lidar_beams_node.outputs:numCols", "ros2_publish_laser_scan.inputs:numCols"),
+                    ("isaac_read_lidar_beams_node.outputs:numRows", "ros2_publish_laser_scan.inputs:numRows"),
+                    ("isaac_read_lidar_beams_node.outputs:rotationRate", "ros2_publish_laser_scan.inputs:rotationRate"),
                 ],
             }
         )
 
         set_target_prims(primPath=f"{robot_controller_path}/SubscribeJointState", targetPrimPaths=[robot_prim_path])
         set_target_prims(primPath=f"{robot_controller_path}/PublishJointState", targetPrimPaths=[robot_prim_path])
+        set_target_prims(primPath=f"{robot_controller_path}/isaac_read_lidar_beams_node", targetPrimPaths=[self.lidar_prim_path], inputName="inputs:lidarPrim")
 
         return
 
