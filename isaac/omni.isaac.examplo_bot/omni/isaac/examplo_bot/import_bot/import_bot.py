@@ -6,8 +6,10 @@ from omni.isaac.core_nodes.scripts.utils import set_target_prims
 import omni.kit.commands
 import omni.usd
 from pxr import UsdPhysics
+import os
 import numpy as np
 import math
+import carb
 
 def set_drive_params(drive, stiffness, damping, max_force):
     drive.GetStiffnessAttr().Set(stiffness)
@@ -29,9 +31,12 @@ class ImportBot(BaseSample):
     async def setup_post_load(self):
         self._world = self.get_world()
         self.robot_name = "examplo"
-        root_path = "/home/helios/examplo-ros2/src/robot_description/"
-        file_name = "examplo.urdf"
-        self._robot_prim_path = self.import_robot("{}/{}".format(root_path, file_name))
+        self.extension_path = os.path.abspath(__file__)
+        self.project_root_path = os.path.abspath(os.path.join(self.extension_path, "../../../../../../.."))
+        self.path_to_urdf = os.path.join(self.project_root_path, "src/robot_description/examplo.urdf")
+        carb.log_info(self.path_to_urdf)
+
+        self._robot_prim_path = self.import_robot(self.path_to_urdf)
         
         if self._robot_prim_path is None:
             print("Error: failed to import robot")
