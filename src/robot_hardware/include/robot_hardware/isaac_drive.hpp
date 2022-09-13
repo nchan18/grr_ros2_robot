@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
@@ -29,6 +30,9 @@
 #include "robot_hardware/visibility_control.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "realtime_tools/realtime_box.h"
+#include "realtime_tools/realtime_buffer.h"
+#include "realtime_tools/realtime_publisher.h"
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -70,16 +74,18 @@ private:
   std::vector<double> hw_positions_;
   std::vector<double> hw_velocities_;
   std::vector<std::string> joint_names_;
+  std::map<std::string, uint> joint_names_map_;
 
-  // Publish to isaac
+
+  // Pub Sub to isaac
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_;
-  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription_;
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::JointState>> isaac_publisher_ = nullptr;
+  std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::msg::JointState>>
+    realtime_isaac_publisher_ = nullptr;
 
-  std::vector<std::string> isaac_joint_names_;
-  std::vector<double> isaac_positions_;
-  std::vector<double> isaac_velocities_;
-  void topic_callback(const sensor_msgs::msg::JointState & state);
+  bool subscriber_is_active_ = false;
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr isaac_subscriber_ = nullptr;
+  realtime_tools::RealtimeBox<std::shared_ptr<sensor_msgs::msg::JointState>> received_joint_msg_ptr_{nullptr};
 };
 
 }  // namespace robot_hardware

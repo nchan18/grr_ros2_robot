@@ -37,7 +37,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[{'robot_description': robot_description_xml}, controllers_file],
+        parameters=[{'robot_description': robot_description_xml, 'use_sim_time': True }, controllers_file],
         output="screen",
     )
 
@@ -51,29 +51,39 @@ def generate_launch_description():
     
 
 
-    # Starts ROS2 Control Diff Drive Controller
-    diff_drive_controller_spawner = Node(
+    # Starts ROS2 Control Mecanum Drive Controller
+    mecanum_drive_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["mecanum_controller", "-c", "/controller_manager"],
     )
-    diff_drive_controller_delay = RegisterEventHandler(
+    mecanum_drive_controller_delay = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner,
-            on_exit=[diff_drive_controller_spawner],
+            on_exit=[mecanum_drive_controller_spawner],
         )
     )
 
 
     # Start Rviz2 with basic view
-    run_rviz2 = ExecuteProcess(
-        cmd=['rviz2', '-d', rviz_file],
-        output='screen'
+    run_rviz2_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        parameters=[{ 'use_sim_time': True }],
+        name='isaac_rviz2',
+        output='screen',
+        arguments=[["-d"], [rviz_file]],
     )
+
+
+    # run_rviz2 = ExecuteProcess(
+    #     cmd=['rviz2', '-d', rviz_file],
+    #     output='screen'
+    # )
     rviz2_delay = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner,
-            on_exit=[run_rviz2],
+            on_exit=[run_rviz2_node],
         )
     )
 
@@ -105,7 +115,7 @@ def generate_launch_description():
         control_node,
         node_robot_state_publisher,
         joint_state_broadcaster_spawner,
-        diff_drive_controller_delay,
+        mecanum_drive_controller_delay,
         rviz2_delay,
         joy,
         joy_teleop

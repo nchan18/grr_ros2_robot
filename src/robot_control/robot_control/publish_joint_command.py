@@ -8,7 +8,7 @@ class PublishJointCmd(Node):
 
     def __init__(self):
         super().__init__('publish_joint_commands')
-        self.publisher_ = self.create_publisher(JointState, 'joint_command', 10)
+        self.publisher_ = self.create_publisher(JointState, 'isaac_joint_commands', 10)
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0

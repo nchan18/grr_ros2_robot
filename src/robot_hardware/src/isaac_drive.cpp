@@ -30,14 +30,31 @@ namespace robot_hardware
 CallbackReturn IsaacDriveHardware::on_init(const hardware_interface::HardwareInfo & info)
 {
 
-  rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
-  custom_qos_profile.depth = 7;
+  // rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+  // custom_qos_profile.depth = 7;
 
   node_ = rclcpp::Node::make_shared("isaac_hardware_interface");
-  publisher_ = node_->create_publisher<sensor_msgs::msg::JointState>("isaac_joint_commands", custom_qos_profile.depth);
-  subscription_ = node_->create_subscription<sensor_msgs::msg::JointState>("isaac_joint_states", custom_qos_profile.depth,
-    std::bind(&IsaacDriveHardware::topic_callback, this, _1));
 
+  // PUBLISHER SETUP
+  isaac_publisher_ = node_->create_publisher<sensor_msgs::msg::JointState>("isaac_joint_commands", rclcpp::SystemDefaultsQoS());
+  realtime_isaac_publisher_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::msg::JointState>>(
+      isaac_publisher_);
+
+  // SUBSCRIBER SETUP
+  const sensor_msgs::msg::JointState empty_joint_state;
+  received_joint_msg_ptr_.set(std::make_shared<sensor_msgs::msg::JointState>(empty_joint_state));
+  isaac_subscriber_ = node_->create_subscription<sensor_msgs::msg::JointState>("isaac_joint_states", rclcpp::SystemDefaultsQoS(),
+    [this](const std::shared_ptr<sensor_msgs::msg::JointState> msg) -> void
+    {
+      if (!subscriber_is_active_) {
+        RCLCPP_WARN( rclcpp::get_logger("isaac_hardware_interface"), "Can't accept new commands. subscriber is inactive");
+        return;
+      }
+      received_joint_msg_ptr_.set(std::move(msg));
+    });
+
+
+  // INTERFACE SETUP
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
@@ -52,7 +69,6 @@ CallbackReturn IsaacDriveHardware::on_init(const hardware_interface::HardwareInf
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
     joint_names_.push_back(joint.name);
-    // DiffBotSystem has exactly two states and one command interface on each joint
     if (joint.command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
@@ -148,11 +164,10 @@ CallbackReturn IsaacDriveHardware::on_activate(
       hw_velocities_[i] = 0;
       hw_commands_[i] = 0;
     }
+    joint_names_map_[joint_names_[i]] = i + 1; // ADD 1 to differentiate null key
   }
 
-  isaac_joint_names_ = joint_names_;
-  isaac_positions_ = hw_positions_;
-  isaac_velocities_ = hw_velocities_;
+  subscriber_is_active_ = true;
 
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Successfully activated!");
 
@@ -165,6 +180,7 @@ CallbackReturn IsaacDriveHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Deactivating ...please wait...");
+  subscriber_is_active_ = false;
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Successfully deactivated!");
 
   return CallbackReturn::SUCCESS;
@@ -177,13 +193,24 @@ CallbackReturn IsaacDriveHardware::on_deactivate(
 hardware_interface::return_type IsaacDriveHardware::read()
 {
   rclcpp::spin_some(node_);
-  for (auto i = 0u; i < hw_commands_.size(); i++) {
-    for (auto y = 0u; y < hw_commands_.size(); y++) {
-      if (joint_names_[i] == isaac_joint_names_[y]) {
-        hw_positions_[i] = isaac_positions_[y];
-        hw_velocities_[i] = isaac_velocities_[y];
-        break;
-      }
+  std::shared_ptr<sensor_msgs::msg::JointState> last_command_msg;
+  received_joint_msg_ptr_.get(last_command_msg);
+
+  if (last_command_msg == nullptr)
+  {
+    RCLCPP_WARN(rclcpp::get_logger("IsaacDriveHardware"), "Velocity message received was a nullptr.");
+    return hardware_interface::return_type::ERROR;
+  }
+
+  auto names = last_command_msg->name;
+  auto positions = last_command_msg->position;
+  auto velocities = last_command_msg->velocity;
+  
+  for (auto i = 0u; i < names.size(); i++) {
+    uint p = joint_names_map_[names[i]];
+    if (p > 0) {
+      hw_positions_[p - 1] = positions[i];
+      hw_velocities_[p - 1] = velocities[i];
     }
   }
   
@@ -194,22 +221,19 @@ hardware_interface::return_type IsaacDriveHardware::read()
 
 hardware_interface::return_type robot_hardware::IsaacDriveHardware::write()
 {
-  RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Velocity: %f", hw_commands_[0]);
+  // RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Velocity: %f", hw_commands_[0]);
 
-  auto joint_commands = sensor_msgs::msg::JointState();
-  joint_commands.name = joint_names_;
-  joint_commands.velocity = hw_commands_;
-  publisher_->publish(joint_commands);
+  if (realtime_isaac_publisher_->trylock()) {
+    auto & realtime_isaac_command = realtime_isaac_publisher_->msg_;
+    realtime_isaac_command.header.stamp = node_->get_clock()->now();
+    realtime_isaac_command.name = joint_names_;
+    realtime_isaac_command.velocity = hw_commands_;
+    realtime_isaac_publisher_->unlockAndPublish();
+  }
+  
   rclcpp::spin_some(node_);
 
   return hardware_interface::return_type::OK;
-}
-
-void IsaacDriveHardware::topic_callback(const sensor_msgs::msg::JointState & state)
-{
-  isaac_joint_names_ = state.name;
-  isaac_positions_ = state.position;
-  isaac_velocities_ = state.velocity;
 }
 
 }  // namespace robot_hardware

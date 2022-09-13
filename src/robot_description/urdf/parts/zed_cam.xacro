@@ -52,7 +52,7 @@
 
     <link name="zed_left_camera_optical_frame"/>
     <joint name="zed_left_camera_optical_joint" type="fixed">
-      <origin xyz="${optical_offset_x} 0 0" rpy="-${M_PI/2} 0.0 -${M_PI/2}"/>
+      <origin xyz="${optical_offset_x} 0 0" rpy="-${M_PI/2} 0.0 ${M_PI/2}"/>
       <parent link="zed_left_camera_frame"/>
       <child link="zed_left_camera_optical_frame"/>
     </joint>
@@ -68,7 +68,7 @@
 
     <link name="zed_right_camera_optical_frame"/>
     <joint name="zed_right_camera_optical_joint" type="fixed">
-      <origin xyz="${optical_offset_x} 0 0" rpy="-${M_PI/2} 0.0 -${M_PI/2}"/>
+      <origin xyz="${optical_offset_x} 0 0" rpy="-${M_PI/2} 0.0 ${M_PI/2}"/>
       <parent link="zed_right_camera_frame"/>
       <child link="zed_right_camera_optical_frame"/>
     </joint>

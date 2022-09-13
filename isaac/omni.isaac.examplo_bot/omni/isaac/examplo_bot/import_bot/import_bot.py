@@ -1,11 +1,13 @@
+import omni.graph.core as og
+import omni.usd
 from omni.isaac.examplo_bot.base_sample import BaseSample
 from omni.isaac.urdf import _urdf
 from omni.isaac.core.robots import Robot
-import omni.graph.core as og
+from omni.isaac.core.utils import prims
 from omni.isaac.core_nodes.scripts.utils import set_target_prims
-import omni.kit.commands
-import omni.usd
+from omni.kit.viewport_legacy import get_default_viewport_window
 from pxr import UsdPhysics
+import omni.kit.commands
 import os
 import numpy as np
 import math
@@ -25,6 +27,7 @@ class ImportBot(BaseSample):
     def setup_scene(self):
         world = self.get_world()
         world.scene.add_default_ground_plane()
+        self.setup_perspective_cam()
         self.setup_world_action_graph()
         return
 
@@ -100,6 +103,7 @@ class ImportBot(BaseSample):
         set_drive_params(rear_left, 0, math.radians(1e5), 98.0)
         set_drive_params(rear_right, 0, math.radians(1e5), 98.0)
         self.create_lidar(robot_prim_path)
+        self.create_depth_camera()
         self.setup_robot_action_graph(robot_prim_path)
         return
 
@@ -126,6 +130,36 @@ class ImportBot(BaseSample):
         )
         return
 
+    
+    def create_depth_camera(self):
+        self.depth_left_camera_path = f"{self._robot_prim_path}/zed_left_camera_optical_frame/left_cam"
+        self.depth_right_camera_path = f"{self._robot_prim_path}/zed_right_camera_optical_frame/right_cam"
+        self.left_camera = prims.create_prim(
+            prim_path=self.depth_left_camera_path,
+            prim_type="Camera",
+            attributes={
+                "focusDistance": 1,
+                "focalLength": 24,
+                "horizontalAperture": 20.955,
+                "verticalAperture": 15.2908,
+                "clippingRange": (0.01, 1000000),
+                "clippingPlanes": np.array([1.0, 0.0, 1.0, 1.0]),
+            },
+        )
+        self.right_camera = prims.create_prim(
+            prim_path=self.depth_right_camera_path,
+            prim_type="Camera",
+            attributes={
+                "focusDistance": 1,
+                "focalLength": 24,
+                "horizontalAperture": 20.955,
+                "verticalAperture": 15.2908,
+                "clippingRange": (0.01, 1000000),
+                "clippingPlanes": np.array([1.0, 0.0, 1.0, 1.0]),
+            },
+        )
+        return
+
     def setup_world_action_graph(self):
         og.Controller.edit(
             {"graph_path": "/globalclock", "evaluator_name": "execution"},
@@ -144,6 +178,43 @@ class ImportBot(BaseSample):
             }
         )
         return
+    
+    def setup_perspective_cam(self):
+        # Get the Viewport and the Default Camera
+        viewport_window = get_default_viewport_window()
+        camera = self.get_world().stage.GetPrimAtPath(viewport_window.get_active_camera())
+
+        # Get Default Cam Values
+        camAttributes = {}
+        camOrientation = None
+        camTranslation = None
+        for att in camera.GetAttributes():
+            name = att.GetName()
+            if not (name.startswith('omni') or name.startswith('xform')):
+                camAttributes[att.GetName()] = att.Get()
+            elif name == 'xformOp:orient':
+                convertedQuat = [att.Get().GetReal()] + list(att.Get().GetImaginary())
+                camOrientation = np.array(convertedQuat)
+            elif name == 'xformOp:translate':
+                camTranslation = np.array(list(att.Get()))
+
+        # Modify what we want
+        camAttributes["clippingRange"] = (0.1, 1000000)
+        camAttributes["clippingPlanes"] = np.array([1.0, 0.0, 1.0, 1.0])
+
+        # Create a new camera with desired values
+        cam_path = "/World/PerspectiveCam"
+        prims.create_prim(
+            prim_path=cam_path,
+            prim_type="Camera",
+            translation=camTranslation,
+            orientation=camOrientation,
+            attributes=camAttributes,
+        )
+
+        # Use the camera for our viewport
+        viewport_window.set_active_camera(cam_path)
+        return
 
     def setup_robot_action_graph(self, robot_prim_path):
         robot_controller_path = f"{robot_prim_path}/ros_interface_controller"
@@ -156,24 +227,37 @@ class ImportBot(BaseSample):
                     ("Context", "omni.isaac.ros2_bridge.ROS2Context"),
                     ("PublishJointState", "omni.isaac.ros2_bridge.ROS2PublishJointState"),
                     ("SubscribeJointState", "omni.isaac.ros2_bridge.ROS2SubscribeJointState"),
+                    ("articulation_controller", "omni.isaac.core_nodes.IsaacArticulationController"),
                     ("isaac_read_lidar_beams_node", "omni.isaac.range_sensor.IsaacReadLidarBeams"),
                     ("ros2_publish_laser_scan", "omni.isaac.ros2_bridge.ROS2PublishLaserScan"),
+                    ("ros2_camera_helper", "omni.isaac.ros2_bridge.ROS2CameraHelper"),
+                    ("isaac_create_viewport", "omni.isaac.core_nodes.IsaacCreateViewport"),
+                    ("set_active_camera", "omni.graph.ui.SetActiveViewportCamera"),
+                    ("get_prim_path", "omni.graph.nodes.GetPrimPath"),
                 ],
                 og.Controller.Keys.SET_VALUES: [
                     ("PublishJointState.inputs:topicName", "isaac_joint_states"),
                     ("SubscribeJointState.inputs:topicName", "isaac_joint_commands"),
+                    ("articulation_controller.inputs:usePath", False),
                     ("ros2_publish_laser_scan.inputs:topicName", "laser_scan"),
                     ("ros2_publish_laser_scan.inputs:frameId", "base_link"),
+                    ("ros2_camera_helper.inputs:frameId", "base_link"),
+                    ("isaac_create_viewport.inputs:viewportId", 1),
                 ],
                 og.Controller.Keys.CONNECT: [
                     ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
                     ("OnPlaybackTick.outputs:tick", "SubscribeJointState.inputs:execIn"),
                     ("OnPlaybackTick.outputs:tick", "isaac_read_lidar_beams_node.inputs:execIn"),
+                    ("OnPlaybackTick.outputs:tick", "isaac_create_viewport.inputs:execIn"),
+                    ("OnPlaybackTick.outputs:tick", "articulation_controller.inputs:execIn"),
                     ("ReadSimTime.outputs:simulationTime", "PublishJointState.inputs:timeStamp"),
                     ("ReadSimTime.outputs:simulationTime", "ros2_publish_laser_scan.inputs:timeStamp"),
                     ("Context.outputs:context", "PublishJointState.inputs:context"),
                     ("Context.outputs:context", "SubscribeJointState.inputs:context"),
                     ("Context.outputs:context", "ros2_publish_laser_scan.inputs:context"),
+                    ("Context.outputs:context", "ros2_camera_helper.inputs:context"),
+                    ("SubscribeJointState.outputs:jointNames", "articulation_controller.inputs:jointNames"),
+                    ("SubscribeJointState.outputs:velocityCommand", "articulation_controller.inputs:velocityCommand"),
                     ("isaac_read_lidar_beams_node.outputs:execOut", "ros2_publish_laser_scan.inputs:execIn"),
                     ("isaac_read_lidar_beams_node.outputs:azimuthRange", "ros2_publish_laser_scan.inputs:azimuthRange"),
                     ("isaac_read_lidar_beams_node.outputs:depthRange", "ros2_publish_laser_scan.inputs:depthRange"),
@@ -184,26 +268,28 @@ class ImportBot(BaseSample):
                     ("isaac_read_lidar_beams_node.outputs:numCols", "ros2_publish_laser_scan.inputs:numCols"),
                     ("isaac_read_lidar_beams_node.outputs:numRows", "ros2_publish_laser_scan.inputs:numRows"),
                     ("isaac_read_lidar_beams_node.outputs:rotationRate", "ros2_publish_laser_scan.inputs:rotationRate"),
+                    ("isaac_create_viewport.outputs:viewport", "ros2_camera_helper.inputs:viewport"),
+                    ("isaac_create_viewport.outputs:viewport", "set_active_camera.inputs:viewport"),
+                    ("isaac_create_viewport.outputs:execOut", "set_active_camera.inputs:execIn"),
+                    ("set_active_camera.outputs:execOut", "ros2_camera_helper.inputs:execIn"),
+                    ("get_prim_path.outputs:primPath", "set_active_camera.inputs:primPath"),
                 ],
             }
         )
 
-        set_target_prims(primPath=f"{robot_controller_path}/SubscribeJointState", targetPrimPaths=[robot_prim_path])
+        set_target_prims(primPath=f"{robot_controller_path}/articulation_controller", targetPrimPaths=[robot_prim_path])
         set_target_prims(primPath=f"{robot_controller_path}/PublishJointState", targetPrimPaths=[robot_prim_path])
         set_target_prims(primPath=f"{robot_controller_path}/isaac_read_lidar_beams_node", targetPrimPaths=[self.lidar_prim_path], inputName="inputs:lidarPrim")
-
+        set_target_prims(primPath=f"{robot_controller_path}/get_prim_path", targetPrimPaths=[self.depth_left_camera_path], inputName="inputs:prim")
         return
 
     async def setup_pre_reset(self):
-        print("Here")
         return
 
     async def setup_post_reset(self):
-        print("Here")
         return
     
     async def setup_post_clear(self):
-        print("Here")
         return
     
     def world_cleanup(self):
