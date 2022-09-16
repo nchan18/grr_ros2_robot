@@ -132,8 +132,8 @@ class ImportBot(BaseSample):
 
     
     def create_depth_camera(self):
-        self.depth_left_camera_path = f"{self._robot_prim_path}/zed_left_camera_optical_frame/left_cam"
-        self.depth_right_camera_path = f"{self._robot_prim_path}/zed_right_camera_optical_frame/right_cam"
+        self.depth_left_camera_path = f"{self._robot_prim_path}/zed_left_camera_frame/left_cam"
+        self.depth_right_camera_path = f"{self._robot_prim_path}/zed_right_camera_frame/right_cam"
         self.left_camera = prims.create_prim(
             prim_path=self.depth_left_camera_path,
             prim_type="Camera",
@@ -142,7 +142,7 @@ class ImportBot(BaseSample):
                 "focalLength": 24,
                 "horizontalAperture": 20.955,
                 "verticalAperture": 15.2908,
-                "clippingRange": (0.01, 1000000),
+                "clippingRange": (0.1, 1000000),
                 "clippingPlanes": np.array([1.0, 0.0, 1.0, 1.0]),
             },
         )
@@ -154,7 +154,7 @@ class ImportBot(BaseSample):
                 "focalLength": 24,
                 "horizontalAperture": 20.955,
                 "verticalAperture": 15.2908,
-                "clippingRange": (0.01, 1000000),
+                "clippingRange": (0.1, 1000000),
                 "clippingPlanes": np.array([1.0, 0.0, 1.0, 1.0]),
             },
         )
@@ -231,9 +231,13 @@ class ImportBot(BaseSample):
                     ("isaac_read_lidar_beams_node", "omni.isaac.range_sensor.IsaacReadLidarBeams"),
                     ("ros2_publish_laser_scan", "omni.isaac.ros2_bridge.ROS2PublishLaserScan"),
                     ("ros2_camera_helper", "omni.isaac.ros2_bridge.ROS2CameraHelper"),
+                    ("ros2_camera_helper_02", "omni.isaac.ros2_bridge.ROS2CameraHelper"),
+                    ("ros2_camera_helper_03", "omni.isaac.ros2_bridge.ROS2CameraHelper"),
                     ("isaac_create_viewport", "omni.isaac.core_nodes.IsaacCreateViewport"),
                     ("set_active_camera", "omni.graph.ui.SetActiveViewportCamera"),
                     ("get_prim_path", "omni.graph.nodes.GetPrimPath"),
+                    ("constant_token", "omni.graph.nodes.ConstantToken"),
+                    ("constant_token_02", "omni.graph.nodes.ConstantToken"),
                 ],
                 og.Controller.Keys.SET_VALUES: [
                     ("PublishJointState.inputs:topicName", "isaac_joint_states"),
@@ -242,7 +246,13 @@ class ImportBot(BaseSample):
                     ("ros2_publish_laser_scan.inputs:topicName", "laser_scan"),
                     ("ros2_publish_laser_scan.inputs:frameId", "base_link"),
                     ("ros2_camera_helper.inputs:frameId", "base_link"),
+                    ("ros2_camera_helper_02.inputs:frameId", "base_link"),
+                    ("ros2_camera_helper_02.inputs:topicName", "camera_info"),
+                    ("ros2_camera_helper_03.inputs:frameId", "base_link"),
+                    ("ros2_camera_helper_03.inputs:topicName", "depth"),
                     ("isaac_create_viewport.inputs:viewportId", 1),
+                    ("constant_token.inputs:value", "camera_info"),
+                    ("constant_token_02.inputs:value", "depth"),
                 ],
                 og.Controller.Keys.CONNECT: [
                     ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
@@ -256,6 +266,7 @@ class ImportBot(BaseSample):
                     ("Context.outputs:context", "SubscribeJointState.inputs:context"),
                     ("Context.outputs:context", "ros2_publish_laser_scan.inputs:context"),
                     ("Context.outputs:context", "ros2_camera_helper.inputs:context"),
+                    ("Context.outputs:context", "ros2_camera_helper_02.inputs:context"),
                     ("SubscribeJointState.outputs:jointNames", "articulation_controller.inputs:jointNames"),
                     ("SubscribeJointState.outputs:velocityCommand", "articulation_controller.inputs:velocityCommand"),
                     ("isaac_read_lidar_beams_node.outputs:execOut", "ros2_publish_laser_scan.inputs:execIn"),
@@ -269,10 +280,13 @@ class ImportBot(BaseSample):
                     ("isaac_read_lidar_beams_node.outputs:numRows", "ros2_publish_laser_scan.inputs:numRows"),
                     ("isaac_read_lidar_beams_node.outputs:rotationRate", "ros2_publish_laser_scan.inputs:rotationRate"),
                     ("isaac_create_viewport.outputs:viewport", "ros2_camera_helper.inputs:viewport"),
+                    ("isaac_create_viewport.outputs:viewport", "ros2_camera_helper_02.inputs:viewport"),
                     ("isaac_create_viewport.outputs:viewport", "set_active_camera.inputs:viewport"),
                     ("isaac_create_viewport.outputs:execOut", "set_active_camera.inputs:execIn"),
                     ("set_active_camera.outputs:execOut", "ros2_camera_helper.inputs:execIn"),
+                    ("set_active_camera.outputs:execOut", "ros2_camera_helper_02.inputs:execIn"),
                     ("get_prim_path.outputs:primPath", "set_active_camera.inputs:primPath"),
+                    ("constant_token.inputs:value", "ros2_camera_helper_02.inputs:type"),
                 ],
             }
         )
