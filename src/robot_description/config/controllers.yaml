@@ -55,9 +55,9 @@ mecanum_controller:
     rear_left_joint: "rear_left_mecanum_joint"
     rear_right_joint: "rear_right_mecanum_joint"
 
-    chassis_center_to_axle: 0.145
-    axle_center_to_wheel: 0.128
-    wheel_radius: 0.0485
+    chassis_center_to_axle: 0.104775 #4.125 in to m
+    axle_center_to_wheel: 0.10795 #4.25 in
+    wheel_radius: 0.0375 #1.5 in
 
     cmd_vel_timeout: 0.5
     use_stamped_vel: false

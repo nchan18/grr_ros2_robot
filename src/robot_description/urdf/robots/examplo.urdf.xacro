@@ -28,11 +28,11 @@
   <xacro:property name="wheel_joint_pos_z" value="0.121" />
 
   <xacro:property name="roller_total" value="9" />
-  <xacro:property name="roller_middle_radius" value="${0.0194/2}" />
-  <xacro:property name="roller_second_radius" value="${0.01904/2}" />
-  <xacro:property name="roller_third_radius" value="${0.01797/2}" />
+  <xacro:property name="roller_middle_radius" value="${0.01621/2}" />
+  <xacro:property name="roller_second_radius" value="${0.01591/2}" />
+  <xacro:property name="roller_third_radius" value="${0.01497/2}" />
   <xacro:property name="roller_cylinder_radius" value="0.0074" />
-  <xacro:property name="roller_length" value="0.0396" />
+  <xacro:property name="roller_length" value="0.0381" />
 
   <xacro:property name="lidar_radius" value="0.035" />
   <xacro:property name="lidar_length" value="0.025" />

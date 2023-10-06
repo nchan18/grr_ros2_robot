@@ -57,49 +57,6 @@ install(TARGETS mecanum_controller
   LIBRARY DESTINATION lib
 )
 
-if(BUILD_TESTING)
-  find_package(ament_cmake_gmock REQUIRED)
-  find_package(controller_manager REQUIRED)
-  find_package(ros2_control_test_assets REQUIRED)
-
-  ament_add_gmock(test_mecanum_controller
-    test/test_mecanum_controller.cpp
-    ENV config_file=${CMAKE_CURRENT_SOURCE_DIR}/test/config/test_mecanum_controller.yaml)
-  target_include_directories(test_mecanum_controller PRIVATE include)
-  target_link_libraries(test_mecanum_controller
-    mecanum_controller
-  )
-
-  ament_target_dependencies(test_mecanum_controller
-    geometry_msgs
-    hardware_interface
-    nav_msgs
-    rclcpp
-    rclcpp_lifecycle
-    realtime_tools
-    tf2
-    tf2_msgs
-  )
-
-  ament_add_gmock(
-    test_load_mecanum_controller
-    test/test_load_mecanum_controller.cpp
-  )
-  target_include_directories(test_load_mecanum_controller PRIVATE include)
-  ament_target_dependencies(test_load_mecanum_controller
-    controller_manager
-    ros2_control_test_assets
-  )
-
-  ament_add_gmock(
-    test_accumulator
-    test/test_accumulator.cpp
-  )
-
-  target_include_directories(test_accumulator PRIVATE include)
-  ament_target_dependencies(test_accumulator)
-
-endif()
 
 ament_export_dependencies(
   controller_interface

@@ -97,7 +97,7 @@ InterfaceConfiguration MecanumController::state_interface_configuration() const
 controller_interface::return_type MecanumController::update(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
-  auto logger = node_->get_logger();
+  auto logger = get_node()->get_logger();
   if (get_state().id() == State::PRIMARY_STATE_INACTIVE)
   {
     if (!is_halted)
@@ -162,13 +162,13 @@ controller_interface::return_type MecanumController::update(
 
 CallbackReturn MecanumController::on_configure(const rclcpp_lifecycle::State &)
 {
-  auto logger = node_->get_logger();
+  auto logger = get_node()->get_logger();
 
   // Get Parameters
-  front_left_joint_name_ = node_->get_parameter("front_left_joint").as_string();
-  front_right_joint_name_ = node_->get_parameter("front_right_joint").as_string();
-  rear_left_joint_name_ = node_->get_parameter("rear_left_joint").as_string();
-  rear_right_joint_name_ = node_->get_parameter("rear_right_joint").as_string();
+  front_left_joint_name_ = get_node()->get_parameter("front_left_joint").as_string();
+  front_right_joint_name_ = get_node()->get_parameter("front_right_joint").as_string();
+  rear_left_joint_name_ = get_node()->get_parameter("rear_left_joint").as_string();
+  rear_right_joint_name_ = get_node()->get_parameter("rear_right_joint").as_string();
 
   if (front_left_joint_name_.empty()) {
     RCLCPP_ERROR(logger, "front_left_joint_name is not set");
@@ -187,13 +187,13 @@ CallbackReturn MecanumController::on_configure(const rclcpp_lifecycle::State &)
     return CallbackReturn::ERROR;
   }
 
-  wheel_params_.x_offset = node_->get_parameter("chassis_center_to_axle").as_double();
-  wheel_params_.y_offset = node_->get_parameter("axle_center_to_wheel").as_double();
-  wheel_params_.radius = node_->get_parameter("wheel_radius").as_double();
+  wheel_params_.x_offset = get_node()->get_parameter("chassis_center_to_axle").as_double();
+  wheel_params_.y_offset = get_node()->get_parameter("axle_center_to_wheel").as_double();
+  wheel_params_.radius = get_node()->get_parameter("wheel_radius").as_double();
 
   cmd_vel_timeout_ = std::chrono::milliseconds{
-    static_cast<int>(node_->get_parameter("cmd_vel_timeout").as_double() * 1000.0)};
-  use_stamped_vel_ = node_->get_parameter("use_stamped_vel").as_bool();
+    static_cast<int>(get_node()->get_parameter("cmd_vel_timeout").as_double() * 1000.0)};
+  use_stamped_vel_ = get_node()->get_parameter("use_stamped_vel").as_bool();
 
 
   // Run reset to make sure everything is initialized correctly
@@ -208,33 +208,33 @@ CallbackReturn MecanumController::on_configure(const rclcpp_lifecycle::State &)
   // initialize command subscriber
   if (use_stamped_vel_)
   {
-    velocity_command_subscriber_ = node_->create_subscription<Twist>(
+    velocity_command_subscriber_ = get_node()->create_subscription<Twist>(
       DEFAULT_COMMAND_TOPIC, rclcpp::SystemDefaultsQoS(),
       [this](const std::shared_ptr<Twist> msg) -> void {
         if (!subscriber_is_active_)
         {
-          RCLCPP_WARN(node_->get_logger(), "Can't accept new commands. subscriber is inactive");
+          RCLCPP_WARN(get_node()->get_logger(), "Can't accept new commands. subscriber is inactive");
           return;
         }
         if ((msg->header.stamp.sec == 0) && (msg->header.stamp.nanosec == 0))
         {
           RCLCPP_WARN_ONCE(
-            node_->get_logger(),
+            get_node()->get_logger(),
             "Received TwistStamped with zero timestamp, setting it to current "
             "time, this message will only be shown once");
-          msg->header.stamp = node_->get_clock()->now();
+          msg->header.stamp = get_node()->get_clock()->now();
         }
         received_velocity_msg_ptr_.set(std::move(msg));
       });
   }
   else
   {
-    velocity_command_unstamped_subscriber_ = node_->create_subscription<geometry_msgs::msg::Twist>(
+    velocity_command_unstamped_subscriber_ = get_node()->create_subscription<geometry_msgs::msg::Twist>(
       DEFAULT_COMMAND_UNSTAMPED_TOPIC, rclcpp::SystemDefaultsQoS(),
       [this](const std::shared_ptr<geometry_msgs::msg::Twist> msg) -> void {
         if (!subscriber_is_active_)
         {
-          RCLCPP_WARN(node_->get_logger(), "Can't accept new commands. subscriber is inactive");
+          RCLCPP_WARN(get_node()->get_logger(), "Can't accept new commands. subscriber is inactive");
           return;
         }
 
@@ -242,11 +242,11 @@ CallbackReturn MecanumController::on_configure(const rclcpp_lifecycle::State &)
         std::shared_ptr<Twist> twist_stamped;
         received_velocity_msg_ptr_.get(twist_stamped);
         twist_stamped->twist = *msg;
-        twist_stamped->header.stamp = node_->get_clock()->now();
+        twist_stamped->header.stamp = get_node()->get_clock()->now();
       });
   }
 
-  previous_update_timestamp_ = node_->get_clock()->now();
+  previous_update_timestamp_ = get_node()->get_clock()->now();
   return CallbackReturn::SUCCESS;
 }
 
@@ -265,7 +265,7 @@ CallbackReturn MecanumController::on_activate(const rclcpp_lifecycle::State &)
   is_halted = false;
   subscriber_is_active_ = true;
 
-  RCLCPP_DEBUG(node_->get_logger(), "Subscriber and publisher are now active.");
+  RCLCPP_DEBUG(get_node()->get_logger(), "Subscriber and publisher are now active.");
   return CallbackReturn::SUCCESS;
 }
 
@@ -317,34 +317,36 @@ void MecanumController::halt()
   front_right_handle_->set_velocity(0.0);
   rear_left_handle_->set_velocity(0.0);
   rear_right_handle_->set_velocity(0.0);
-  auto logger = node_->get_logger();
+  auto logger = get_node()->get_logger();
   RCLCPP_WARN(logger, "-----HALT CALLED : STOPPING ALL MOTORS-----");
 }
 
 std::shared_ptr<Wheel> MecanumController::get_wheel( const std::string & wheel_name )
 {
-  auto logger = node_->get_logger();
-  if (wheel_name.empty())
-  {
-    RCLCPP_ERROR(logger, "Wheel joint name not given. Make sure all joints are specified.");
-    return nullptr;
-  }
+  auto logger = get_node()->get_logger();
+    if (wheel_name.empty())
+    {
+      RCLCPP_ERROR(logger, "Wheel joint name not given. Make sure all joints are specified.");
+      return nullptr;
+    }
 
-  // Get Command Handle for joint
-  const auto command_handle = std::find_if(
-    command_interfaces_.begin(), command_interfaces_.end(),
-    [&wheel_name](const auto & interface) {
-      return interface.get_name() == wheel_name &&
-              interface.get_interface_name() == HW_IF_VELOCITY;
-    });
+    // Get Command Handle for joint
+    const auto command_handle = std::find_if(
+        command_interfaces_.begin(), command_interfaces_.end(),
+        [&wheel_name](const auto &interface)
+        {
+          return interface.get_name() == wheel_name + "/velocity" &&
+                 interface.get_interface_name() == HW_IF_VELOCITY;
+        });
 
-  if (command_handle == command_interfaces_.end())
-  {
-    RCLCPP_ERROR(logger, "Unable to obtain joint command handle for %s", wheel_name.c_str());
-    return nullptr;
-  }
-
-  return std::make_shared<Wheel>(std::ref(*command_handle), wheel_name);
+    if (command_handle == command_interfaces_.end())
+    {
+      RCLCPP_ERROR(logger, "Unable to obtain joint command handle for %s", wheel_name.c_str());
+      return nullptr;
+    }
+    auto cmd_interface_name = command_handle->get_name();
+    RCLCPP_INFO(logger, "FOUND! wheel cmd interface %s", cmd_interface_name.c_str());
+    return std::make_shared<Wheel>(std::ref(*command_handle), wheel_name);
 }
 }  // namespace mecanum_controller
 

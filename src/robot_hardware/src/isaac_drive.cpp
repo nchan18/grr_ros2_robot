@@ -27,7 +27,7 @@ using std::placeholders::_1;
 
 namespace robot_hardware
 {
-CallbackReturn IsaacDriveHardware::on_init(const hardware_interface::HardwareInfo & info)
+hardware_interface::CallbackReturn IsaacDriveHardware::on_init(const hardware_interface::HardwareInfo & info)
 {
 
   // rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
@@ -150,7 +150,7 @@ std::vector<hardware_interface::CommandInterface> IsaacDriveHardware::export_com
 
 
 
-CallbackReturn IsaacDriveHardware::on_activate(
+hardware_interface::CallbackReturn IsaacDriveHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Activating ...please wait...");
@@ -176,7 +176,7 @@ CallbackReturn IsaacDriveHardware::on_activate(
 
 
 
-CallbackReturn IsaacDriveHardware::on_deactivate(
+hardware_interface::CallbackReturn IsaacDriveHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Deactivating ...please wait...");
@@ -190,7 +190,7 @@ CallbackReturn IsaacDriveHardware::on_deactivate(
 // ||                        ||
 // \/ THE STUFF THAT MATTERS \/
 
-hardware_interface::return_type IsaacDriveHardware::read()
+hardware_interface::return_type robot_hardware::IsaacDriveHardware::read(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   rclcpp::spin_some(node_);
   std::shared_ptr<sensor_msgs::msg::JointState> last_command_msg;
@@ -219,7 +219,7 @@ hardware_interface::return_type IsaacDriveHardware::read()
 
 
 
-hardware_interface::return_type robot_hardware::IsaacDriveHardware::write()
+hardware_interface::return_type robot_hardware::IsaacDriveHardware::write(const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   // RCLCPP_INFO(rclcpp::get_logger("IsaacDriveHardware"), "Velocity: %f", hw_commands_[0]);
 
