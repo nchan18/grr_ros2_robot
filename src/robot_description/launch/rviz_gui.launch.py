@@ -16,10 +16,14 @@ def generate_launch_description():
 
     # Process the URDF file
     pkg_path = os.path.join(get_package_share_directory('robot_description'))
-    xacro_file = os.path.join(pkg_path,'urdf', 'robots','examplo.urdf.xacro')
+    xacro_file = os.path.join(pkg_path, 'urdf', 'robots','examplo.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_file)
+    robot_description_xml = robot_description_config.toxml()
 
-    print(robot_description_config.toxml())
+    source_code_path = os.path.abspath(os.path.join(pkg_path, "../../../../grr_ros2_robot/src/robot_description"))
+    urdf_save_path = os.path.join(source_code_path, "examplo.urdf")
+    with open(urdf_save_path, 'w') as f:
+        f.write(robot_description_xml)
     
     # Create a robot_state_publisher node
     params = {'robot_description': robot_description_config.toxml(), 'use_sim_time': use_sim_time}
@@ -52,7 +56,7 @@ def generate_launch_description():
             default_value='false',
             description='Use sim time if true'),
 
-        node_robot_state_publisher,
-        joint_state_publisher_gui,
-        run_rviz2
+        # node_robot_state_publisher,
+        # joint_state_publisher_gui,
+        # run_rviz2
     ])

@@ -9,7 +9,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://robot_description/meshes/mec_hub_${type}.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://robot_description/meshes/wheel${type}.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="orange"/>
       </visual>
@@ -28,7 +28,7 @@
       <axis xyz="0.0 0.0 ${copysign(1, (flip * -1))}"/>
     </joint>
 
-    <!-- There will be 9 rollers for each wheel -->
+    <!-- There will be 8 rollers for each wheel -->
     <xacro:roller name="${name}" number="0" />
     <xacro:roller name="${name}" number="1" />
     <xacro:roller name="${name}" number="2" />
@@ -37,7 +37,6 @@
     <xacro:roller name="${name}" number="5" />
     <xacro:roller name="${name}" number="6" />
     <xacro:roller name="${name}" number="7" />
-    <xacro:roller name="${name}" number="8" />
   </xacro:macro>
   
 </robot>
