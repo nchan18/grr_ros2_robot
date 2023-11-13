@@ -1,11 +1,11 @@
 import omni.graph.core as og
 import omni.usd
 from omni.isaac.examplo_bot.base_sample import BaseSample
-from omni.isaac.urdf import _urdf
+# from omni.isaac.urdf import urdf
 from omni.isaac.core.robots import Robot
 from omni.isaac.core.utils import prims
 from omni.isaac.core_nodes.scripts.utils import set_target_prims
-from omni.kit.viewport_legacy import get_default_viewport_window
+# from omni.kit.viewport_legacy import get_default_viewport_window
 from pxr import UsdPhysics
 import omni.kit.commands
 import os
@@ -27,7 +27,7 @@ class ImportBot(BaseSample):
     def setup_scene(self):
         world = self.get_world()
         world.scene.add_default_ground_plane()
-        self.setup_perspective_cam()
+        # self.setup_perspective_cam()
         self.setup_world_action_graph()
         return
 
@@ -45,6 +45,7 @@ class ImportBot(BaseSample):
             print("Error: failed to import robot")
             return
         
+        
         self._robot_prim = self._world.scene.add(
             Robot(prim_path=self._robot_prim_path, name=self.robot_name, position=np.array([0.0, 0.0, 0.3]))
         )
@@ -52,7 +53,7 @@ class ImportBot(BaseSample):
         return
     
     def import_robot(self, urdf_path):
-        import_config = _urdf.ImportConfig()
+        status, import_config = omni.kit.commands.execute("URDFCreateImportConfig")
         import_config.merge_fixed_joints = False
         import_config.fix_base = False
         import_config.make_default_prim = True
@@ -61,7 +62,7 @@ class ImportBot(BaseSample):
         import_config.import_inertia_tensor = True
         import_config.default_drive_strength = 1047.19751
         import_config.default_position_drive_damping = 52.35988
-        import_config.default_drive_type = _urdf.UrdfJointTargetType.JOINT_DRIVE_VELOCITY
+        # import_config.default_drive_type = _urdf.UrdfJointTargetType.JOINT_DRIVE_VELOCITY
         import_config.distance_scale = 1.0
         import_config.density = 0.0
         result, prim_path = omni.kit.commands.execute( "URDFParseAndImportFile", 
@@ -72,36 +73,112 @@ class ImportBot(BaseSample):
             return prim_path
         return None
 
+
     
     def configure_robot(self, robot_prim_path):
         w_sides = ['left', 'right']
         l_sides = ['front', 'rear']
         stage = self._world.stage
 
-        for w_side in w_sides:
-            for l_side in l_sides:
-                for i in range(9):
-                    joint_name = "{}_{}_roller_{}_joint".format(l_side, w_side, i)
-                    joint_path = "{}/{}_{}_mecanum_link/{}".format(robot_prim_path, l_side, w_side, joint_name)
-                    prim = stage.GetPrimAtPath(joint_path)
-                    omni.kit.commands.execute(
-                        "UnapplyAPISchemaCommand",
-                        api=UsdPhysics.DriveAPI,
-                        prim=prim,
-                        api_prefix="drive",
-                        multiple_api_token="angular")
-                    # drive = UsdPhysics.DriveAPI.Get(prim, "angular")
-                    # set_drive_params(drive, 0.0, 2.0, 0.0)
+        # for w_side in w_sides:
+        #     for l_side in l_sides:
+        #         for i in range(9):
+        #             joint_name = "{}_{}_roller_{}_joint".format(l_side, w_side, i)
+        #             joint_path = "{}/{}_{}_mecanum_link/{}".format(robot_prim_path, l_side, w_side, joint_name)
+        #             prim = stage.GetPrimAtPath(joint_path)
+        #             omni.kit.commands.execute(
+        #                 "UnapplyAPISchemaCommand",
+        #                 api=UsdPhysics.DriveAPI,
+        #                 prim=prim,
+        #                 api_prefix="drive",
+        #                 multiple_api_token="angular")
+        #             # drive = UsdPhysics.DriveAPI.Get(prim, "angular")
+        #             # set_drive_params(drive, 0.0, 2.0, 0.0)
 
         front_left = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/chassis_link/front_left_mecanum_joint"), "angular")
         front_right = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/chassis_link/front_right_mecanum_joint"), "angular")
         rear_left = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/chassis_link/rear_left_mecanum_joint"), "angular")
         rear_right = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/chassis_link/rear_right_mecanum_joint"), "angular")
 
+        front_left_roller_0 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"/examplo/front_left_mecanum_link/front_left_roller_0_joint"), "angular")
+        front_left_roller_1 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_1_joint"), "angular")
+        front_left_roller_2 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_2_joint"), "angular")
+        front_left_roller_3 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_3_joint"), "angular")
+        front_left_roller_4 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_4_joint"), "angular")
+        front_left_roller_5 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_5_joint"), "angular")
+        front_left_roller_6 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_6_joint"), "angular")
+        front_left_roller_7 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_left_mecanum_link/front_left_roller_7_joint"), "angular")
+
+        front_right_roller_0 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_0_joint"), "angular")
+        front_right_roller_1 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_1_joint"), "angular")
+        front_right_roller_2 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_2_joint"), "angular")
+        front_right_roller_3 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_3_joint"), "angular")
+        front_right_roller_4 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_4_joint"), "angular")
+        front_right_roller_5 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_5_joint"), "angular")
+        front_right_roller_6 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_6_joint"), "angular")
+        front_right_roller_7 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/front_right_mecanum_link/front_right_roller_7_joint"), "angular")
+
+        rear_left_roller_0 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_0_joint"), "angular")
+        rear_left_roller_1 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_1_joint"), "angular")
+        rear_left_roller_2 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_2_joint"), "angular")
+        rear_left_roller_3 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_3_joint"), "angular")
+        rear_left_roller_4 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_4_joint"), "angular")
+        rear_left_roller_5 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_5_joint"), "angular")
+        rear_left_roller_6 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_6_joint"), "angular")
+        rear_left_roller_7 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_left_mecanum_link/rear_left_roller_7_joint"), "angular")
+
+        rear_right_roller_0 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_0_joint"), "angular")
+        rear_right_roller_1 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_1_joint"), "angular")
+        rear_right_roller_2 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_2_joint"), "angular")
+        rear_right_roller_3 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_3_joint"), "angular")
+        rear_right_roller_4 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_4_joint"), "angular")
+        rear_right_roller_5 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_5_joint"), "angular")
+        rear_right_roller_6 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_6_joint"), "angular")
+        rear_right_roller_7 = UsdPhysics.DriveAPI.Get(stage.GetPrimAtPath(f"{robot_prim_path}/rear_right_mecanum_link/rear_right_roller_7_joint"), "angular")
+
+
         set_drive_params(front_left, 0, math.radians(1e5), 98.0)
         set_drive_params(front_right, 0, math.radians(1e5), 98.0)
         set_drive_params(rear_left, 0, math.radians(1e5), 98.0)
         set_drive_params(rear_right, 0, math.radians(1e5), 98.0)
+        
+        damping = 0.0
+        set_drive_params(front_left_roller_0, 0, damping, 98.0)
+        set_drive_params(front_left_roller_1, 0, damping, 98.0)
+        set_drive_params(front_left_roller_2, 0, damping, 98.0)
+        set_drive_params(front_left_roller_3, 0, damping, 98.0)
+        set_drive_params(front_left_roller_4, 0, damping, 98.0)
+        set_drive_params(front_left_roller_5, 0, damping, 98.0)
+        set_drive_params(front_left_roller_6, 0, damping, 98.0)
+        set_drive_params(front_left_roller_7, 0, damping, 98.0)
+
+        set_drive_params(front_right_roller_0, 0, damping, 98.0)
+        set_drive_params(front_right_roller_1, 0, damping, 98.0)
+        set_drive_params(front_right_roller_2, 0, damping, 98.0)
+        set_drive_params(front_right_roller_3, 0, damping, 98.0)
+        set_drive_params(front_right_roller_4, 0, damping, 98.0)
+        set_drive_params(front_right_roller_5, 0, damping, 98.0)
+        set_drive_params(front_right_roller_6, 0, damping, 98.0)
+        set_drive_params(front_right_roller_7, 0, damping, 98.0)
+
+        set_drive_params(rear_left_roller_0, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_1, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_2, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_3, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_4, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_5, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_6, 0, damping, 98.0)
+        set_drive_params(rear_left_roller_7, 0, damping, 98.0)
+
+        set_drive_params(rear_right_roller_0, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_1, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_2, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_3, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_4, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_5, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_6, 0, damping, 98.0)
+        set_drive_params(rear_right_roller_7, 0, damping, 98.0)
+
         self.create_lidar(robot_prim_path)
         self.create_depth_camera()
         self.setup_robot_action_graph(robot_prim_path)
@@ -179,7 +256,7 @@ class ImportBot(BaseSample):
         )
         return
     
-    def setup_perspective_cam(self):
+    # def setup_perspective_cam(self):
         # Get the Viewport and the Default Camera
         viewport_window = get_default_viewport_window()
         camera = self.get_world().stage.GetPrimAtPath(viewport_window.get_active_camera())

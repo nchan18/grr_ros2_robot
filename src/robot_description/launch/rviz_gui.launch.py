@@ -20,7 +20,7 @@ def generate_launch_description():
     robot_description_config = xacro.process_file(xacro_file)
     robot_description_xml = robot_description_config.toxml()
 
-    source_code_path = os.path.abspath(os.path.join(pkg_path, "../../../../grr_ros2_robot/src/robot_description"))
+    source_code_path = os.path.abspath(os.path.join(pkg_path, "../../../../../grr_ros2_robot/src/robot_description"))
     urdf_save_path = os.path.join(source_code_path, "examplo.urdf")
     with open(urdf_save_path, 'w') as f:
         f.write(robot_description_xml)

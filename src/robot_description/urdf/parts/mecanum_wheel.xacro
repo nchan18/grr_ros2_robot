@@ -3,7 +3,7 @@
 
   <xacro:macro name="mecanum_with_rollers" params="name type radius width flip pos_x pos_y pos_z mass">
     <link name="${name}_mecanum_link">
-      <xacro:inertial_cylinder mass="${mass}" length="${width}" radius="${radius}">
+      <xacro:inertial_cylinder mass="${mass+1}" length="${width}" radius="${radius}">
         <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
       </xacro:inertial_cylinder>
       <visual>

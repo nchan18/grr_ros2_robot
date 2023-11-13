@@ -37,7 +37,7 @@
         </geometry>
         <material name="grey"/>
       </visual>
-      <collision>
+      <!-- <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <sphere radius="${roller_middle_radius}"/>
@@ -66,7 +66,16 @@
         <geometry>
           <sphere radius="${roller_third_radius}"/>
         </geometry>
+      </collision> -->
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/rolle2r.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
       </collision>
+      <xacro:inertial_cylinder mass="0.07" radius="${roller_cylinder_radius}" length="${roller_length}">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:inertial_cylinder>
     </link>
     
 
