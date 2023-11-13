@@ -74,7 +74,51 @@ class ImportBot(BaseSample):
         return None
 
 
-    
+    def set_friction(self, robot_prim_path):
+        stage = omni.usd.get_context().get_stage()
+        omni.kit.commands.execute('AddRigidBodyMaterialCommand',stage=stage, path='/World/Physics_Materials/Rubber',staticFriction=1.1,dynamicFriction=1.5,restitution=None)
+        omni.kit.commands.execute('AddRigidBodyMaterialCommand',stage=stage, path='/World/Physics_Materials/RubberProMax',staticFriction=1.5,dynamicFriction=2.0,restitution=None)
+
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_0"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_1"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_2"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_3"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_4"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_5"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_6"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/front_left_roller_7"],strength=['weakerThanDescendants'])
+
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_0"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_1"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_2"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_3"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_4"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_5"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_6"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/front_right_roller_7"],strength=['weakerThanDescendants'])
+
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_0"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_1"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_2"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_3"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_4"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_5"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_6"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/Rubber',prim_path=[f"{robot_prim_path}/rear_left_roller_7"],strength=['weakerThanDescendants'])
+
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_0"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_1"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_2"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_3"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_4"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_5"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_6"],strength=['weakerThanDescendants'])
+        omni.kit.commands.execute('BindMaterialExt',material_path='/World/Physics_Materials/RubberProMax',prim_path=[f"{robot_prim_path}/rear_right_roller_7"],strength=['weakerThanDescendants'])
+        return
+
+        
+
+
     def configure_robot(self, robot_prim_path):
         w_sides = ['left', 'right']
         l_sides = ['front', 'rear']
@@ -182,6 +226,7 @@ class ImportBot(BaseSample):
         self.create_lidar(robot_prim_path)
         self.create_depth_camera()
         self.setup_robot_action_graph(robot_prim_path)
+        self.set_friction(robot_prim_path)
         return
 
     def create_lidar(self, robot_prim_path):
