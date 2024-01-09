@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:property name="camera_stand_length" value="0.18" />
+    <xacro:property name="camera_stand_width" value="0.33" />
+    <xacro:property name="camera_stand_height" value="0.135" />
+    <xacro:property name="camera_stand_weight" value="2.45" />
+    <xacro:property name="camera_length" value="0.18" />
+    <xacro:property name="camera_width" value="0.33" />
+    <xacro:property name="camera_height" value="0.135" />
+    <xacro:property name="camera_weight" value="2.45" />
+    <xacro:property name="bridge_holder_width" value="0.18" />
+    <xacro:property name="bridge_holder_height" value="0.33" />
+    <xacro:property name="bridge_holder_length" value="0.135" />
+    <xacro:property name="bridge_holder_weight" value="0.135" />
+    <xacro:property name="bridge_latch_length" value="2.45" />
+    <xacro:property name="bridge_latch_width" value="0.18" />
+    <xacro:property name="bridge_latch_height" value="0.33" />
+    <xacro:property name="bridge_latch_weight" value="0.135" />
+    <xacro:property name="color_sensor_length" value="0.18" />
+    <xacro:property name="color_sensor_width" value="0.33" />
+    <xacro:property name="color_sensor_height" value="0.135" />
+    <xacro:property name="color_sensor_weight" value="2.45" />
+    <xacro:property name="bridge_holder_roller_radius" value="0.18" />
+    <xacro:property name="bridge_holder_roller_height" value="0.135" />
+    <xacro:property name="bridge_holder_roller_weight" value="2.45" />
+
+    <xacro:macro name="bridge" params="parent origin ">
+        <link name="camera_stand_link">
+            <xacro:inertial_box mass="${camera_stand_weight}" x="${camera_stand_length}"
+                y="${camera_stand_width}"
+                z="${camera_stand_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/camera_stand.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="green" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box
+                        size="${camera_stand_length} ${camera_stand_width} ${camera_stand_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="camera_stand_joint" type="fixed">
+            <parent link="${parent}" />
+            <child link="camera_stand_link" />
+            <origin xyz="${origin}" />
+        </joint>
+        <link name="camera_1_link">
+            <xacro:inertial_box mass="${camera_weight}" x="${camera_length}" y="${camera_width}"
+                z="${camera_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 ${-pi/2}" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/camera.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="black" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${camera_length} ${camera_width} ${camera_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="camera_1_joint" type="fixed">
+            <parent link="camera_stand_link" />
+            <child link="camera_1_link" />
+            <origin xyz="0.02 -0.05 0.09" rpy="0 0 0" />
+        </joint>
+        <link name="camera_2_link">
+            <xacro:inertial_box mass="${camera_weight}" x="${camera_length}" y="${camera_width}"
+                z="${camera_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/camera.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="black" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${camera_length} ${camera_width} ${camera_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="camera_2_joint" type="fixed">
+            <parent link="camera_stand_link" />
+            <child link="camera_2_link" />
+            <origin xyz="0.045 0.04 0.07" rpy="0 0 0" />
+        </joint>
+        <link name="bridge_latch_link">
+
+            <xacro:inertial_box mass="${bridge_latch_weight}" x="${bridge_latch_length}"
+                y="${bridge_latch_width}" z="${bridge_latch_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/bridge_latch.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="blue" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box
+                        size="${bridge_latch_length} ${bridge_latch_width} ${bridge_latch_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="bridge_latch_joint" type="fixed">
+            <parent link="camera_stand_link" />
+            <child link="bridge_latch_link" />
+            <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+        </joint>
+
+        <link name="bridge_holder_link">
+            <xacro:inertial_box mass="${bridge_holder_weight}" x="${bridge_holder_length}"
+                y="${bridge_holder_width}" z="${bridge_holder_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 -0.1 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/bridge_holder.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="yellow" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="${bridge_holder_length} ${bridge_holder_width} ${bridge_holder_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="bridge_holder_joint" type="fixed">
+            <parent link="${parent}" />
+            <child link="bridge_holder_link" />
+            <origin xyz="0.0 -0.04 0.03" rpy="0 0 0" />
+        </joint>
+
+        <link name="color_sensor_link">
+            <xacro:inertial_box mass="${color_sensor_weight}" x="${color_sensor_length}"
+                y="${color_sensor_width}" z="${color_sensor_height}">
+                <origin xyz="0 0 -${height / 2}" rpy="0 0 0" />
+            </xacro:inertial_box>
+            <visual>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+                <geometry>
+                    <mesh filename="package://robot_description/meshes/color_sensor.stl"
+                        scale="0.001 0.001 0.001" />
+                </geometry>
+                <material name="red" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box
+                        size="${color_sensor_length} ${color_sensor_width} ${color_sensor_height/2}" />
+                </geometry>
+            </collision>
+        </link>
+        <joint name="color_sensor_joint" type="fixed">
+            <parent link="bridge_holder_link" />
+            <child link="color_sensor_link" />
+            <origin xyz="0.0 -0.11 0.04" rpy="0 0 0" />
+        </joint>
+    </xacro:macro>
+</robot>

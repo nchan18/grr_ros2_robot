@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:property name="grr_brain_length" value="0.18" />
+<xacro:property name="grr_brain_width" value="0.33" />
+<xacro:property name="grr_brain_height" value="0.135" />
+<xacro:property name="grr_brain_weight" value="2.45" />
+<xacro:property name="small_package_servo_length" value="0.18" />
+<xacro:property name="small_package_servo_width" value="0.33" />
+<xacro:property name="small_package_servo_height" value="0.135" />
+<xacro:property name="small_package_servo_weight" value="2.45" />
+<xacro:property name="small_package_sweeper_radius" value="0.18" />
+<xacro:property name="small_package_sweeper_height" value="0.135" />
+<xacro:property name="small_package_sweeper_weight" value="2.45" />
+<xacro:property name="small_package_sweeper_roller_radius" value="0.18" />
+<xacro:property name="small_package_sweeper_roller_height" value="0.135" />
+<xacro:property name="small_package_sweeper_roller_weight" value="2.45" />
+
+
+  <xacro:macro name="small_package_sweeper" params="parent origin">
+    <link name="grr_brain_link">
+      <xacro:inertial_box mass="${grr_brain_weight}" x="${grr_brain_length}" y="${grr_brain_width}" z="${grr_brain_height}">
+        <origin xyz="0 0 -${height / 2}" rpy="0 0 0"/>
+      </xacro:inertial_box>
+      <visual>
+        <origin xyz="-0.03 0.1 0.03" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/brain.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="red"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${grr_brain_length} ${grr_brain_width} ${grr_brain_height/2}"/>
+        </geometry>
+      </collision>
+    </link>
+
+
+    <joint name="grr_brain_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="grr_brain_link"/>
+      <origin xyz="${origin}"/>
+    </joint>
+    <link name="small_package_sweeper_servo_link">
+        <xacro:inertial_box mass="${small_package_servo_weight}" x="${small_package_servo_length}" y="${small_package_servo_width}" z="${small_package_servo_height}">
+            <origin xyz="0 0 -${height / 2}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/small_package_sweeper_servo.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="yellow"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <box size="${small_package_servo_length} ${small_package_servo_width} ${small_package_servo_height/2}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="small_package_servo_joint" type="fixed">
+      <origin xyz="-0.035 0.22 0.025" rpy="0 0 0"/>
+      <parent link="grr_brain_link"/>
+      <child link="small_package_sweeper_servo_link"/>
+    </joint>
+    <link name="small_package_sweeper_link">
+        <xacro:inertial_cylinder mass="${small_package_sweeper_weight}" length="${small_package_sweeper_height}" radius="${small_package_sweeper_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/small_package_sweeper.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="yellow"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <cylinder radius="${small_package_sweeper_radius}" length="${small_package_sweeper_height}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="small_package_sweeper_joint" type="revolute">
+      <origin xyz="-0.01 0.06 -0.06" rpy="0 0 0"/>
+      <parent link="small_package_sweeper_servo_link"/>
+      <child link="small_package_sweeper_link"/>
+      <axis xyz="1 0 0"/>
+      <limit effort="100" lower="-1.57" upper="1.57" velocity="0.5"/>
+    </joint>
+    <link name="small_package_sweeper_roller_link">
+        <xacro:inertial_cylinder mass="${small_package_sweeper_roller_weight}" length="${small_package_sweeper_roller_height}" radius="${small_package_sweeper_roller_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/meshes/small_package_sweeper_roller.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="yellow"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <cylinder radius="${small_package_sweeper_roller_radius}" length="${small_package_sweeper_roller_height}"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="small_package_sweeper_roller_joint" type="continuous">
+      <origin xyz="0 0.05 -0.06" rpy="0 0 0"/>
+      <parent link="small_package_sweeper_link"/>
+      <child link="small_package_sweeper_roller_link"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+  </xacro:macro>
+</robot>

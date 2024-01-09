@@ -9,7 +9,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://robot_description/meshes/wheel${type}.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://robot_description/meshes/mechanum_wheel_${type}.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="orange"/>
       </visual>

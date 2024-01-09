@@ -33,7 +33,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://robot_description/meshes/rolle2r.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://robot_description/meshes/mechanum_roller.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="grey"/>
       </visual>
@@ -70,7 +70,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://robot_description/meshes/rolle2r.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://robot_description/meshes/mechanum_roller.stl" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
       <xacro:inertial_cylinder mass="0.07" radius="${roller_cylinder_radius}" length="${roller_length}">

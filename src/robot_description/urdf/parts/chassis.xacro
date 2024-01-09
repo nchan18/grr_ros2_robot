@@ -11,7 +11,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://robot_description/meshes/HillCraterDrivebase.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://robot_description/meshes/slim_drivebase.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="blue"/>
       </visual>
